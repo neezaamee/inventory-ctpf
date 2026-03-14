@@ -47,10 +47,6 @@ jobs:
             **/adminlte-template/**
             **/node_modules/**
             **/tests/**
-            **/storage/framework/cache/**
-            **/storage/framework/sessions/**
-            **/storage/framework/views/**
-            **/storage/logs/**
             **/.env
             **/phpunit.xml
             **/.editorconfig
