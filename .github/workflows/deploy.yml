@@ -1,35 +1,57 @@
-name: Deploy via FTP
+name: 🚀 Deploy Website to cPanel via FTP
+
 on:
   push:
     branches:
-      - main # Change this if your default branch is different (e.g., master)
+      - main
+
 jobs:
   deploy:
-    name: Deploy
+    name: 📦 Build & Deploy
     runs-on: ubuntu-latest
-    steps:
-      - name: Get latest code
-        uses: actions/checkout@v3
 
-      - name: Sync files
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: ⚙️ Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mbstring, bcmath, curl, json
+          coverage: none
+
+      - name: 📦 Install Composer Dependencies
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+
+      - name: 🚀 Deploy to cPanel via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ./ # Ensure this matches your cPanel path
+          port: 21
+          protocol: ftp
+
+          server-dir: /public_html/
+
+          state-name: .ftp-deploy-sync-state.json
+          dangerous-clean-slate: false
+
           exclude: |
             **/.git*
+            **/.github/**
+            **/.vscode/**
             **/node_modules/**
-            **/.env
-            **/storage/**
-            **/vendor/**
             **/tests/**
+            **/storage/framework/cache/**
+            **/storage/framework/sessions/**
+            **/storage/framework/views/**
+            **/storage/logs/**
+            **/.env
             **/phpunit.xml
             **/.editorconfig
             **/.gitattributes
-            **/composer.json
-            **/composer.lock
-            **/package.json
-            **/package-lock.json
-            **/vite.config.js
+            **/README.md
